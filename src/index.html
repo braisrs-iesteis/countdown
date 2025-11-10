@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your Countdown To/</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        color: white;
+      }
+
+      body {
+        align-items: center;
+        font-family: monospace;
+        background: white;
+      }
+
+      .main {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around
+      }
+
+      .item-container-wrap {
+        margin: 15px;
+        border-radius: 10px;
+        overflow: hidden;
+        user-select: none;
+        transition-duration: 0.25s;
+        box-shadow: 0px 3px 15px 0px rgba(31, 31, 31, 0.64);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
+
+      .item-container-wrap:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 3px 20px 0px rgba(31, 31, 31, 1.28);
+      }
+
+      .item-container {
+        padding: 15px;
+        /* background-image: ...; */
+        background-size: cover;
+        background-position: center;
+        height: 400px;
+        width: 300px;
+        position: relative;
+      }
+
+      .item-content-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 300px;
+        padding: 10% 15px 0 15px;
+        height: 300px;
+        background: linear-gradient(to top, #0000, #0009, #000b, #000e);
+      }
+
+      .item-title {
+        font-weight: bold;
+        font-size: 28px;
+      }
+
+      .item-subtitle {
+        font-weight: bold;
+        font-size: 20px;
+        margin-top: 10px;
+      }
+
+      .item-time-container {
+        font-weight: bold;
+        font-size: 50px;
+        text-align: center;
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        position: absolute;
+        bottom: 0;
+        left: 0px;
+        width: 100%;
+        padding: 40px 0 5px 0;
+        background: linear-gradient(to bottom, #0000, #0009, #000b, #000e);
+      }
+
+      .item-time-container * {
+        text-align: center;
+        font-weight: bolder;
+        font-size: 20px;
+      }
+
+      .hidden {
+        transition-duration: 0s;
+        opacity: 0;
+      }
+
+      .item-category {
+        position: absolute;
+        top: 0;
+        left: 15px;
+        padding: 5px 15px;
+        font-size: 15px;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+
+      .category-game {
+        background: #00cd15;
+      }
+
+      .category-music {
+        background: #0096cf;
+      }
+
+      .category-movie {
+        background: #b100b6;
+      }
+
+      .category-tv {
+        background: #ff26ad;
+      }
+
+      .category-sport, .category-sport-event, .category-sports-event {
+        background: #eccb10;
+      }
+
+      .category-anniversary, .category-birthday, .category-duedate, .category-event, .category-wedding {
+        background: #ff5502;
+      }
+
+      .category-general, .category-other, .category-religious-occasion, .category-retirement {
+        background: #aaa;
+      }
+
+      .flip {
+        transition-duration: 0.25s;
+        transform: rotateY(180deg);
+      }
+
+      .flip:hover {
+        transform: rotateY(180deg);
+      }
+    </style>
+  </head>
+  <body class="main"></body>
+  <script src="temporal.js"></script>
+  <script src="script.js"></script>
+</html>

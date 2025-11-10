@@ -1,0 +1,18 @@
+{
+  "name": "countdown",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "bun --watch run ./src/server.js",
+    "release": "node --disable-warning=ExperimentalWarning ./src/server.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "express": "*",
+    "node-html-parser": "*"
+  },
+  "devDependencies": {
+    "@types/bun": "*",
+    "@types/express": "*",
+    "@types/node": "*"
+  }
+}
