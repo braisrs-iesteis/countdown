@@ -96,10 +96,7 @@ document.body.addEventListener("mousemove", (e) => {
         "Accept": "application/json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        title: wrap.getElementsByClassName("item-title")[0].innerHTML,
-        subtitle: wrap.getElementsByClassName("item-subtitle")[0].innerHTML,
-      })
+      body: JSON.stringify({ id: e.id })
     });
     setTimeout(() => wrap.remove(), 250);
   }

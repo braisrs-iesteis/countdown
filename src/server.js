@@ -1,17 +1,16 @@
 #!/bin/bun run
 "use strict";
 
+import crypto from "crypto";
 import path from "path";
 import express from "express";
 import { parse } from "node-html-parser";
-
 
 // https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 const TERM_RED     = "\x1b[1;31m";
 const TERM_GREEN   = "\x1b[1;32m";
 const TERM_YELLOW  = "\x1b[1;33m";
 const TERM_BLUE    = "\x1b[1;34m";
-const TERM_MAGENTA = "\x1b[1;35m";
 
 const TERM_RESET   = "\x1b[0m";
 
@@ -31,7 +30,7 @@ const { DEBUG, OFFLINE, PORT } = (() => {
       PORT = argv[++i];
 
     }else if(argv[i] == "--offline"){
-      OFFLINE_MODE = true;
+      OFFLINE = true;
 
     }else if(argv[i] == "--online"){
       OFFLINE = false;
@@ -66,46 +65,38 @@ const db = await (async () => {
 })();
 
 db.exec(/* SQL */
-  `CREATE TABLE IF NOT EXISTS countdown (
+  `CREATE TABLE IF NOT EXISTS countdown(
+    id TEXT,
     title TEXT,
     subtitle TEXT,
     category TEXT,
     datetime TEXT,
     img TEXT,
-      UNIQUE(title, subtitle))`.replace(/[ \n]+/, " "));
+      UNIQUE(id))`.replace(/[ \n]+/, " "));
 
-const T = {}
-T.countdown = {
+const T = { countdown: {
   select: () => {
     return T.countdown.__prepare_select.all();
   },
   insert: (t) => {
-    return T.countdown.__prepare_insert.all(t.title, t.subtitle, t.category, t.datetime, t.img);
-  },
-  update: (t) => {
-    return T.countdown.__prepare_update.all(t.category, t.datetime, t.img, t.title, t.subtitle);
+    return T.countdown.__prepare_insert.all(t.id, t.title, t.subtitle, t.category, t.datetime, t.img);
   },
   delete: (t) => {
-    return T.countdown.__prepare_delete.all(t.title, t.subtitle);
+    return T.countdown.__prepare_delete.all(t.id);
   },
 
 
   __prepare_select: db.prepare(/* SQL */
-    "SELECT title, subtitle, category, datetime, img FROM countdown"),
+    "SELECT id, title, subtitle, category, datetime, img FROM countdown"),
 
   __prepare_insert: db.prepare(/* SQL */
     `INSERT OR IGNORE INTO
-      countdown(title, subtitle, category, datetime, img) 
-        VALUES(?, ?, ?, ?, ?)`.replace(/[ \n]+/, " ")),
-
-  __prepare_update: db.prepare(/* SQL */
-    `UPDATE countdown
-      SET category=?, datetime=?, img=?
-        WHERE title=? AND subtitle=?`.replace(/[ \n]+/, " ")),
+      countdown(id, title, subtitle, category, datetime, img) 
+        VALUES(?, ?, ?, ?, ?, ?)`.replace(/[ \n]+/, " ")),
 
   __prepare_delete: db.prepare(/* SQL */
-    "DELETE FROM countdown WHERE title=? and subtitle=?")
-};
+    "DELETE FROM countdown WHERE id=?")
+}};
 
 const app = express();
 app.use(express.json());
@@ -138,19 +129,18 @@ GET("/",            (_, res) => res.sendFile(P.SRC + "/index.html"));
 GET("/index.html",  (_, res) => res.sendFile(P.SRC + "/index.html"));
 GET("/script.js",   (_, res) => res.sendFile(P.SRC + "/script.js"));
 GET("/temporal.js", (_, res) => res.sendFile(P.THIRD_PARTY + "/temporal@0.3.0.min.js"));
-GET("/api/events",  (_, res) => res.json(T.countdown.select()));
+GET("/api/events/", (_, res) => res.json(T.countdown.select()));
 
-POST("/api/event", (req, res) => {
+POST("/api/event/", (req, res) => {
   const { title, subtitle, category, datetime, img } = req.body;
   const t = { title, subtitle, category, datetime, img };
+  t.id = crypto.createHash("md5").update(t.title + t.subtitle).digest("hex");
   T.countdown.insert(t);
   res.status(200).json({ "status": "OK" });
 });
 
 DELETE("/api/event/", (req, res) => {
-  const { title, subtitle } = req.body;
-  const t = { title, subtitle };
-  T.countdown.delete(t);
+  T.countdown.delete({ id: req.body.id });
   res.status(200).json({ "status": "OK" });
 });
 
@@ -165,12 +155,14 @@ if(!OFFLINE){
   for(const url of urls) {
     const html = await (await fetch(url)).text();
     Array.from(parse(html).querySelectorAll(".countdown-item")).forEach((e) => {
-      let c = e.querySelectorAll(".category")[0];
-      c = c ? c.innerText : "other";
+      const t = e.querySelectorAll(".title")[0].innerText;
+      const s = e.querySelectorAll(".subtitle")[0].innerText;
+      const c = e.querySelectorAll(".category")[0];
       T.countdown.insert({
-        title: e.querySelectorAll(".title")[0].innerText,
-        category: c,
-        subtitle: e.querySelectorAll(".subtitle")[0].innerText,
+        id: crypto.createHash("md5").update(t + s).digest("hex"),
+        title: t,
+        subtitle: s,
+        category: c ? c.innerText : "other",
         datetime: e.querySelectorAll(".countdown")[0].getAttribute("data-date"),
         img: e.querySelectorAll("img")[0].getAttribute("src")
       });
