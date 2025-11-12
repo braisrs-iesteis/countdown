@@ -112,24 +112,27 @@ app.use(express.json());
 
 const GET = !DEBUG ? (p, c) => app.get(p, c) : (path, callback) => {
   app.get(path, (req, res) => {
-    console.log(TERM_GREEN + "GET" + TERM_RESET +  " " + req.originalUrl)
-    callback(req, res)
+    const strBody = req.body ? (" :: " + JSON.stringify(req.body)) : "";
+    console.log(TERM_GREEN + "GET" + TERM_RESET +  " " + req.originalUrl + strBody);
+    callback(req, res);
   });
-}
+};
 
 const POST = !DEBUG ? (p, c) => app.post(p ,c) : (path, callback) => {
   app.post(path, (req, res) => {
-    console.log(TERM_BLUE + "POST" + TERM_RESET +  " " + req.originalUrl)
-    callback(req, res)
+    const strBody = req.body ? (" :: " + JSON.stringify(req.body)) : "";
+    console.log(TERM_BLUE + "POST" + TERM_RESET +  " " + req.originalUrl + strBody);
+    callback(req, res);
   });
-}
+};
 
 const DELETE = !DEBUG ? (p, c) => app.delete(p, c) : (path, callback) => {
   app.delete(path, (req, res) => {
-    console.log(TERM_RED + "DELETE" + TERM_RESET +  " " + req.originalUrl)
-    callback(req, res)
+    const strBody = req.body ? (" :: " + JSON.stringify(req.body)) : "";
+    console.log(TERM_RED + "DELETE" + TERM_RESET +  " " + req.originalUrl + strBody);
+    callback(req, res);
   });
-}
+};
 
 GET("/",            (_, res) => res.sendFile(P.SRC + "/index.html"));
 GET("/index.html",  (_, res) => res.sendFile(P.SRC + "/index.html"));
